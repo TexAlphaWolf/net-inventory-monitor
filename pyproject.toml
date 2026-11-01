@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov>=5", "httpx>=0.27", "ruff>=0.4", "mypy>=1.10"]
+dev = ["pytest>=8", "pytest-cov>=7.1.0", "httpx>=0.27", "ruff>=0.4", "mypy>=1.10"]
 
 [project.scripts]
 netinv = "netinv.cli:main"
