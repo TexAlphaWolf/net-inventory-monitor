@@ -67,6 +67,12 @@ def _cmd_scan(args: argparse.Namespace) -> int:
     print(f"scanning {networks} ...")
     changes = scan_once(settings, store)
     print_changes(changes)
+    if not store.devices():
+        print(
+            "warning: no device was found. Check NETINV_SUBNETS, and that the machine is on that "
+            "network and `ping` works.",
+            file=sys.stderr,
+        )
     return 0
 
 

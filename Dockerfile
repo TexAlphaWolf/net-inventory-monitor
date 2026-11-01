@@ -4,10 +4,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-# `ping` is what the scanner uses. It carries the NET_RAW file capability, so the unprivileged
-# user below can run it when docker-compose.yml grants that capability to the container.
+# `ping` is what the scanner uses. It is given the NET_RAW file capability here, at build time,
+# so the unprivileged user below can run it when docker-compose.yml grants NET_RAW to the
+# container. (Some Debian releases ship ping without it and rely on a host sysctl instead.)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends iputils-ping \
+    && apt-get install -y --no-install-recommends iputils-ping libcap2-bin \
+    && setcap cap_net_raw+ep "$(command -v ping)" \
+    && apt-get purge -y --auto-remove libcap2-bin \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --uid 10001 netinv \
     && mkdir /data && chown netinv /data

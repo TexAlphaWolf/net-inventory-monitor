@@ -290,3 +290,10 @@ def test_oui_update_uses_the_ca_bundle(monkeypatch, tmp_path):
     monkeypatch.delenv("NETINV_CA_BUNDLE")
     cli._ssl_context()
     assert seen["cafile"] is None
+
+
+def test_an_empty_scan_warns(monkeypatch, capsys):
+    use_scanner(monkeypatch, [])
+    assert run("scan") == 0
+    captured = capsys.readouterr()
+    assert "no changes" in captured.out and "no device was found" in captured.err
