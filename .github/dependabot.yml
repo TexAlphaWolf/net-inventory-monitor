@@ -2,6 +2,8 @@ version: 2
 updates:
   - package-ecosystem: pip
     directory: /
+    # Leave the minimum versions in pyproject.toml alone unless a newer one is really needed.
+    versioning-strategy: increase-if-necessary
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
