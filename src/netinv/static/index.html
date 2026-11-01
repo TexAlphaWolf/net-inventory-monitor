@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>netinv</title>
+  <link rel="stylesheet" href="/dashboard.css">
+  <script src="/dashboard.js" defer></script>
+</head>
+<body>
+  <header>
+    <h1>netinv</h1>
+    <span id="status" class="muted" role="status">loading…</span>
+  </header>
+
+  <form id="login" class="row" hidden>
+    <label class="muted">Access token <input id="token" type="password" autocomplete="off" required></label>
+    <button type="submit">Unlock</button>
+  </form>
+
+  <main>
+    <section id="cards" class="cards" aria-label="Summary"></section>
+
+    <section>
+      <div class="row">
+        <h2>Devices</h2>
+        <div class="toolbar">
+          <label class="muted"><input id="only-unknown" type="checkbox"> unknown only</label>
+          <a class="muted" href="/api/export?format=csv" id="export">export CSV</a>
+          <button id="scan" class="primary" type="button">Scan now</button>
+        </div>
+      </div>
+      <table id="devices">
+        <thead>
+          <tr><th>Device</th><th>Address</th><th class="hide-small">Uptime 24h</th><th class="hide-small">Last seen</th><th></th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Recent changes</h2>
+      <table id="events">
+        <thead><tr><th>Time</th><th>Kind</th><th>What happened</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

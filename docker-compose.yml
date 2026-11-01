@@ -1,0 +1,25 @@
+# On the Linux server (or any Linux host). Docker Desktop on Windows/macOS runs containers in a VM
+# that cannot see your LAN: there, run `netinv run` natively instead (see README).
+services:
+  netinv:
+    build: .
+    # Host networking: the scanner needs the real LAN, and the ARP table of the host.
+    network_mode: host
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # With host networking the port is the host's: bind to localhost unless you add TLS in front.
+      NETINV_DB: /data/netinv.db
+    command: ["netinv", "run", "--host", "${NETINV_BIND:-127.0.0.1}", "--port", "${NETINV_PORT:-8090}"]
+    volumes:
+      - netinv-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    # ping needs NET_RAW. It comes from a file capability on the `ping` binary, which
+    # no-new-privileges would block, so that option is not set for this one service.
+    cap_add: [NET_RAW]
+
+volumes:
+  netinv-data:

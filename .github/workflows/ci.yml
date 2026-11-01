@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (Python ${{ matrix.python-version }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        include:
+          # The scanner parses the output of the system `ping` and `arp`: check Windows too.
+          - os: windows-latest
+            python-version: "3.14"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: mypy
+      - run: pytest -q --cov
+
+  audit:
+    name: dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - run: pip install -e . pip-audit
+      - run: pip-audit --skip-editable
+
+  docker:
+    name: docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t netinv .
+      - name: Scan the loopback range as the unprivileged user, with the compose hardening
+        run: |
+          docker run --rm --network host --read-only --tmpfs /tmp \
+            --cap-drop ALL --cap-add NET_RAW \
+            -e NETINV_SUBNETS=127.0.0.0/30 -e NETINV_RETRY_TIMEOUT_MS=0 \
+            netinv netinv scan | tee /dev/stderr | grep -q "First scan: 2 devices"
